@@ -18,7 +18,8 @@ let pool_field : (_, Caqti_error.t) Caqti_lwt.Pool.t Message.field =
   Message.new_field ()
 
 let foreign_keys_on =
-  Caqti_request.exec Caqti_type.unit "PRAGMA foreign_keys = ON"
+Caqti_request.Infix.(->.) Caqti_type.unit
+   Caqti_type.unit "PRAGMA foreign_keys = ON"
 
 let post_connect (module Db : Caqti_lwt.CONNECTION) =
   match Caqti_driver_info.dialect_tag Db.driver_info with
@@ -43,7 +44,7 @@ let sql_pool ?size uri =
         "Dream.sql_pool: \
         'sqlite' is not a valid scheme; did you mean 'sqlite3'?");
     let pool =
-      Caqti_lwt.connect_pool ?max_size:size ~post_connect parsed_uri in
+      Caqti_lwt_unix.connect_pool ?max_size:size ~post_connect parsed_uri in
     match pool with
     | Ok pool ->
       pool_cell := Some pool;

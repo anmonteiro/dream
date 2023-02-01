@@ -27,7 +27,9 @@ let serialize_payload payload =
 
 let insert =
   let query =
-    R.exec T.(tup4 string string float string) {|
+R.Infix.(->.) T.(tup4 string string float string) T.unit
+    (* R.exec T.(tup4 string string float string)  *)
+    {|
       INSERT INTO dream_session (id, label, expires_at, payload)
       VALUES ($1, $2, $3, $4)
     |} in
@@ -40,7 +42,7 @@ let insert =
 
 let find_opt =
   let query =
-    R.find_opt T.string T.(tup3 string float string)
+    R.Infix.(->?) T.string T.(tup3 string float string)
       "SELECT label, expires_at, payload FROM dream_session WHERE id = $1" in
 
   fun (module Db : DB) id ->
@@ -67,7 +69,8 @@ let find_opt =
 
 let refresh =
   let query =
-    R.exec T.(tup2 float string)
+R.Infix.(->.) T.(tup2 float string) T.unit
+    (* R.exec T.(tup2 float string) *)
       "UPDATE dream_session SET expires_at = $1 WHERE id = $2" in
 
   fun (module Db : DB) (session : Session.session) ->
@@ -76,7 +79,7 @@ let refresh =
 
 let update =
   let query =
-    R.exec T.(tup2 string string)
+R.Infix.(->.) T.(tup2 string string) T.unit
       "UPDATE dream_session SET payload = $1 WHERE id = $2" in
 
   fun (module Db : DB) (session : Session.session) ->
@@ -85,7 +88,10 @@ let update =
     Caqti_lwt.or_fail result
 
 let remove =
-  let query = R.exec T.string "DELETE FROM dream_session WHERE id = $1" in
+  let query =
+R.Infix.(->.) T.string T.unit
+    (* R.exec T.string  *)
+    "DELETE FROM dream_session WHERE id = $1" in
 
   fun (module Db : DB) id ->
     let%lwt result = Db.exec query id in
